@@ -120,7 +120,7 @@ void test(int testArr[], int n){
 	cout << "orginal:";
 	printArr(testArr,n);
 	cout << "easy count:" << easyInversionCount(testArr, n) << endl;
-	cout << "sorted arr:";
+	cout << "sorted ";
 	int i = fastInversionCount(testArr, n);
 	cout << "fast count: " << i << endl;
 	cout << endl;
@@ -143,6 +143,9 @@ int main() {
 
 	int a4[4] = {1,2,3,4};
 	test(a4, 4);
+
+	//int a5[1] = {1};
+	//test(a5, 1);
 
 	return 0;
 }
