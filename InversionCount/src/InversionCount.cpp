@@ -1,13 +1,16 @@
 /* Maylee Gagnon
  * CS 2223 HW3P2
  * 11.10.19
- *
  */
 
 #include <iostream>
 #include <array>
 using namespace std;
 
+/* Prints the given array
+ * @param arr The array to be printed
+ * @param n The number of elements in the array
+ */
 void printArr(int arr[], int n){
 	for (int i = 0; i < n; i++) {
 		cout << arr[i] << " ";
@@ -15,11 +18,10 @@ void printArr(int arr[], int n){
 	cout << endl;
 }
 
-/* Supose to be done in O(n^2)
+/* O(n^2)
  * @param arr The array of numbers to be checked
  * @param n The number of elements in array
  * @return The number of inversions found
- *
  */
 int easyInversionCount(int arr[], int n){
 	int inverCt = 0;
@@ -33,123 +35,114 @@ int easyInversionCount(int arr[], int n){
 	return inverCt;
 }
 
-/*
-/* Merges two sorted array back into A
- *
- *
-int merge(int B[], int C[], int A[], int Bp, int Cq){
-	cout << "merge" << endl;
-	cout << "Bp: " << Bp << endl;
+/* Feathers the two sorted arrays into one
+ * Counts the inversions
+ * @param arr The actual array being sorted
+ * @param temp Place holder array
+ * @param l The position of the left array
+ * @param m The divide between the two arrays
+ * @param r The very end of the array
+ * @return the number of inversions
+ */
+int merge(int arr[], int temp[], int l, int m, int r){
+	int i = l; //left array pos
+	int j = m; //right array pos
+	int k = l; //actual array pos
+	int ct = 0 ;
 
-	int i = 0;
-	int j = 0;
-	int k = 0;
-	int ct = 0;
-
-	while ((i <= Bp) && (j <= Cq)){
-		if (B[i] <= C[j]){
-			A[k] = B[i];
-			i++;
+	//compare the values in both arrays, update array/ct as appropriate
+	while ((i <= m-1) && (j <= r)){
+		if (arr[i] <= arr[j]) {
+			temp[k++] = arr[i++];
 		}
 		else {
-			A[k] = C[j];
-			j++;
-
-			ct++;  //TODO
-		}
-		k++;
-	}
-
-	if (i == Bp) {
-		for (int x = j; x <= Cq -1; x++){ // copy C[j..q-1] to A[k..p+q-1]
-			A[k] = C[x];
-			k++;
+			temp[k++] = arr[j++];
+			ct += m-i; // update inversion count
 		}
 	}
-	else {
-		for (int x = i; x < Bp; x++){ // copy B[i ..p-1] to A[k..p+q-1]
-			A[k] = B[x];
-			k++;
-		}
+
+	//adds the left over elements to array
+	while (i <= m-1){
+		temp[k++] = arr[i++];
+	}
+	while (j <= r){
+		temp[k++] = arr[j++];
+	}
+
+	//copies new array into the actual array
+	for (i = l; i <= r; i++){
+		arr[i] = temp[i];
 	}
 	return ct;
 }
 
-/*Recursive merge sort
- * @param A Array to be sorted
- * @param n Number of elements in array
- * @return Number of inversions
- *
-int mergeSort(int A[], int n){
-	cout << "mergeSort" << endl;
-	int mid = (n/2)-1;
-	int B[mid];
-	int C[mid];
-	int ct = 0;
 
-	if (n>1){
-		cout << "mergeSort n>1" << endl;
-		for (int i = 0; i <= mid; i++){
-			B[i] = A[i];
-		}
-		int posC = 0;
-		for (int i = (mid+1); i <= n-1; i++){
-			C[posC] = A[i];
-			posC++;
-		}
+/* Actually does the work to sort the arrays. Using merge sort
+ * @param arr Array to be sorted
+ * @param temp Place holder array
+ * @param l The start of the array (changes as the array is split in recursive calls)
+ * @parm r The end of the array  (^)
+ * @return The number of inversions found in array
+ */
+int mergeSort(int arr[], int temp[], int l, int r){
+	int m;
+	int ct  = 0;
+	if (r > l) { // array needs to be split
+		m = (r+l)/2; //  finding the middle
 
-		ct += mergeSort(B, mid);
-		ct += mergeSort(C, mid);
+		ct += mergeSort(arr, temp, l, m); // recursive calls for each of the larger array
+		ct += mergeSort(arr, temp, m+1, r);
 
-		int Bp = *(&B +1)-B;
-		int Cq = *(&C +1)-C;
-		ct += merge(B,C,A,Bp,Cq);
-		cout << "after merge call" << endl;
+		ct += merge(arr, temp, l, m+1, r); // call to feather the two arrays together
 	}
 	return ct;
 }
-*/
 
-/* Suppose to be done in O(nLog(n))
+/*  O(nLog(n))
  * Merge sort & count, prints sorted array
  * @param arr The array of numbers to be checked
  * @param n The number of elements in array
  * @return The number of inversions found
- *
  */
 int fastInversionCount(int arr[], int size){
-	cout << "in fastInversionCount" << endl;
-
-	int i = mergeSort(arr,size);
-	cout << "arr: " << endl;
-	printArr(arr, size);
-
+	int temp[size];
+	int i = mergeSort(arr, temp, 0, size-1);
+	cout << "arr: ";
+	printArr(temp, size);
 	return i;
 }
 
+/* Function used to test fastInversionCount. Prints original, prints easy count, prints sorted, prints fast count
+ * @param testArr Array to be tested
+ * @param n Number of elements in array
+ */
+void test(int testArr[], int n){
+	cout << "orginal:";
+	printArr(testArr,n);
+	cout << "easy count:" << easyInversionCount(testArr, n) << endl;
+	cout << "sorted arr:";
+	int i = fastInversionCount(testArr, n);
+	cout << "fast count: " << i << endl;
+	cout << endl;
+}
 int main() {
 	int arr[3] = {3,2,1};
 	int n = 3;
 	cout << "easy count:" << easyInversionCount(arr, n) << endl;
+	cout << endl;
 
+	//Testing fastInversionCount
+	int a1[2] = {4,2};
+	test(a1, 2);
 
-	// call to fastInversionCount();
-	int testArr[2] = {4,2};
-	int n1 = 2; // TODO calculate size
-	//int testArr[4] = {4,2,3,1};
-	//int n1 = 4; // TODO calculate size
-	//int testArr[8] = {19,8,90,7,6,1,3,11};
-	//int n1 = 8;
-	//int testArr[4] = {1,2,3,4};
-	//int n1 = 4;
-	cout << "orginal:" << endl;
-		printArr(testArr,n1);
+	int a2[4] = {4,2,3,1};
+	test(a2, 4);
 
-	cout << "easy count:" << easyInversionCount(testArr, n1) << endl;
+	int a3[8] = {19,8,90,7,6,1,3,11};
+	test(a3, 8);
 
-	cout << "sorted:" << endl;
-	int i = fastInversionCount(testArr, n1);
-	cout << "count: " << i << endl;
+	int a4[4] = {1,2,3,4};
+	test(a4, 4);
 
 	return 0;
 }
